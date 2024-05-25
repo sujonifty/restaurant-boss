@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { authContext } from "../../Provider/AuthProvider";
 import { Helmet } from "react-helmet-async";
+import Swal from "sweetalert2";
 
 
 const SignUp = () => {
@@ -15,6 +16,12 @@ const SignUp = () => {
         .then(result=>{
             const loggedUser = result.user;
             console.log(loggedUser);
+            Swal.fire({
+                icon: "success",
+                title: "SingUp Successfully",
+                showConfirmButton: false,
+                timer: 1500
+            });
         })
     }
     return (

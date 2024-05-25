@@ -1,28 +1,23 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
-import { loadCaptchaEnginge, LoadCanvasTemplate, LoadCanvasTemplateNoReload, validateCaptcha } from 'react-simple-captcha';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { loadCaptchaEnginge, LoadCanvasTemplate, validateCaptcha } from 'react-simple-captcha';
 import { authContext } from '../../Provider/AuthProvider';
+import Swal from 'sweetalert2';
 
 
 const Login = () => {
-    const { signIn,error,setError } = useContext(authContext);
-    const captchaRef = useRef(null);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/";
+    const { signIn, error, setError } = useContext(authContext);
     const [disable, setDisable] = useState(true);
     useEffect(() => {
-        loadCaptchaEnginge(6);
+        loadCaptchaEnginge(4);
     }, [])
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const email = e.target.email.value;
-        const password = e.target.password.value;
-        const loginInfo = { email, password };
-        console.log(loginInfo);
-        signIn(email, password)
-            .then((result) => console.log(result.user))
-    }
-    const handleCaptchaValidation = () => {
-        const user_captchaValue = captchaRef.current.value;
+
+    const handleCaptchaValidation = (e) => {
+        const user_captchaValue = e.target.value;
         console.log(user_captchaValue);
         if (validateCaptcha(user_captchaValue)) {
             setDisable(false);
@@ -30,7 +25,27 @@ const Login = () => {
         else {
             // setError('wrong captcha');
         }
+    } 
+
+    const handleLogin = (e) => {
+        e.preventDefault();
+        const email = e.target.email.value;
+        const password = e.target.password.value;
+        const loginInfo = { email, password };
+        console.log(loginInfo);
+        signIn(email, password)
+            .then((result) => {
+                console.log(result.user);
+                Swal.fire({
+                    icon: "success",
+                    title: "Login Successfully",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                navigate(from, { replace: true });
+            })
     }
+   
     return (
         <div className="hero min-h-screen bg-base-200">
             <Helmet><title>BISTRO BOSS | Login</title></Helmet>
@@ -40,7 +55,7 @@ const Login = () => {
                     <p className="py-6">Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi exercitationem quasi. In deleniti eaque aut repudiandae et a id nisi.</p>
                 </div>
                 <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-                    <form onSubmit={handleSubmit} className="card-body">
+                    <form onSubmit={handleLogin} className="card-body">
                         <div className="form-control">
                             <label className="label">
                                 <span className="label-text">Email</span>
@@ -60,11 +75,11 @@ const Login = () => {
                             <label className="label">
                                 <LoadCanvasTemplate />
                             </label>
-                            <input type="text" ref={captchaRef} name="captcha" placeholder="Type the text above" className="input input-bordered" required />
+                            <input type="text" onBlur={handleCaptchaValidation} name="captcha" placeholder="Type the text above" className="input input-bordered" required />
                             {
                                 error && <small className="text-red-700">{error}</small>
                             }
-                            <button onClick={handleCaptchaValidation} className='rounded-lg  btn btn-outline btn-xs mt-2'>validation</button>
+                            {/* <button  className='rounded-lg  btn btn-outline btn-xs mt-2'>validation</button> */}
                         </div>
                         <div className="form-control mt-6">
                             <input disabled={disable} type="submit" className="btn btn-primary" value="Login" />
