@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { loadCaptchaEnginge, LoadCanvasTemplate, LoadCanvasTemplateNoReload, validateCaptcha } from 'react-simple-captcha';
+import { authContext } from '../../Provider/AuthProvider';
 
 
 const Login = () => {
+    const { signIn,error,setError } = useContext(authContext);
     const captchaRef = useRef(null);
     const [disable, setDisable] = useState(true);
     useEffect(() => {
@@ -15,6 +18,8 @@ const Login = () => {
         const password = e.target.password.value;
         const loginInfo = { email, password };
         console.log(loginInfo);
+        signIn(email, password)
+            .then((result) => console.log(result.user))
     }
     const handleCaptchaValidation = () => {
         const user_captchaValue = captchaRef.current.value;
@@ -23,11 +28,12 @@ const Login = () => {
             setDisable(false);
         }
         else {
-            setDisable(true);
+            // setError('wrong captcha');
         }
     }
     return (
         <div className="hero min-h-screen bg-base-200">
+            <Helmet><title>BISTRO BOSS | Login</title></Helmet>
             <div className="hero-content flex-col lg:flex-row-reverse">
                 <div className="text-center lg:text-left">
                     <h1 className="text-5xl font-bold">Login now!</h1>
@@ -52,9 +58,13 @@ const Login = () => {
                         </div>
                         <div className="form-control">
                             <label className="label">
-                                <LoadCanvasTemplate />                            </label>
+                                <LoadCanvasTemplate />
+                            </label>
                             <input type="text" ref={captchaRef} name="captcha" placeholder="Type the text above" className="input input-bordered" required />
-                            <button onChange={handleCaptchaValidation} className='rounded-lg  btn btn-outline btn-xs mt-2'>validation</button>
+                            {
+                                error && <small className="text-red-700">{error}</small>
+                            }
+                            <button onClick={handleCaptchaValidation} className='rounded-lg  btn btn-outline btn-xs mt-2'>validation</button>
                         </div>
                         <div className="form-control mt-6">
                             <input disabled={disable} type="submit" className="btn btn-primary" value="Login" />

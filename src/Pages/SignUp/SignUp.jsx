@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { authContext } from "../../Provider/AuthProvider";
+import { Helmet } from "react-helmet-async";
 
 
 const SignUp = () => {
@@ -13,10 +14,12 @@ const SignUp = () => {
         createUser(data.email, data.password)
         .then(result=>{
             const loggedUser = result.user;
+            console.log(loggedUser);
         })
     }
     return (
         <div className="hero min-h-screen bg-base-200">
+            <Helmet><title>BISTRO BOSS | SignUp</title></Helmet>
             <div className="hero-content flex-col lg:flex-row-reverse">
                 <div className="text-center lg:text-left">
                     <h1 className="text-5xl font-bold">SignUp now!</h1>
