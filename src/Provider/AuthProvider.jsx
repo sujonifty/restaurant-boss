@@ -8,9 +8,10 @@ export const authContext = createContext(null);
 const AuthProvider = ({children}) => {
     const [user, setUser]= useState();
     const [loading, setLoading]=useState(true);
-
     // create user with email & password
     const createUser=(email, password)=>{
+        console.log(email)
+        console.log(password)
         setLoading(true);
         return createUserWithEmailAndPassword(auth, email, password)
     }
