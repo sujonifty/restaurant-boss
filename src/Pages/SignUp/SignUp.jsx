@@ -4,31 +4,46 @@ import { Link, Navigate } from "react-router-dom";
 import { authContext } from "../../Provider/AuthProvider";
 import { Helmet } from "react-helmet-async";
 import Swal from "sweetalert2";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 
 const SignUp = () => {
-    const { register, handleSubmit,reset, formState: { errors }, } = useForm();
+    const axiosPublic = useAxiosPublic();
+    const { register, handleSubmit, reset, formState: { errors }, } = useForm();
 
-    const {createUser, updateUserProfile}=useContext(authContext);
+    const { createUser, updateUserProfile } = useContext(authContext);
     const onSubmit = (data) => {
         console.log(data);
         createUser(data.email, data.password)
-        .then(result=>{
-            const loggedUser = result.user;
-            console.log(loggedUser);
-            updateUserProfile(data.name, data.photoURL)
-            .then(()=>{
-                reset()
-                Swal.fire({
-                    icon: "success",
-                    title: "SingUp Successfully",
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-                Navigate('/');
+            .then(result => {
+                const loggedUser = result.user;
+                console.log(loggedUser);
+                updateUserProfile(data.name, data.photoURL)
+                    .then(() => {
+                        //create user entry in the database
+                        const userInfo = {
+                            name: data.name,
+                            email: data.email
+                        }
+                        axiosPublic.post('/users', userInfo)
+                            .then(res => {
+                                if (res.data.insertedId) {
+                                    // console.log('user inserted database')
+                                    reset();
+                                    Swal.fire({
+                                        icon: "success",
+                                        title: "SingUp Successfully",
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    });
+                                    Navigate('/');
+                                }
+                            })
+
+
+                    })
+                    .catch((error) => console.log(error))
             })
-            .catch((error)=>console.log(error))
-        })
     }
     return (
         <div className="hero min-h-screen bg-base-200">
@@ -65,7 +80,7 @@ const SignUp = () => {
                             <label className="label">
                                 <span className="label-text">Password</span>
                             </label>
-                            <input type="password" {...register("password", { required: true,pattern: /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-])/, minLength: 6, maxLength: 20 })} name="password" placeholder="password" className="input input-bordered" />
+                            <input type="password" {...register("password", { required: true, pattern: /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-])/, minLength: 6, maxLength: 20 })} name="password" placeholder="password" className="input input-bordered" />
                             {errors.password?.type === 'required' && <span className="text-red-600">Password is required</span>}
                             {errors.password?.type === 'pattern' && <span className="text-red-600">Password must have one upper & lowercase,number,special key.</span>}
                             {errors.password?.type === 'minLength' && <span className="text-red-600">Password must be 6 characters</span>}
