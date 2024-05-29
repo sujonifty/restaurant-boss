@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { loadCaptchaEnginge, LoadCanvasTemplate, validateCaptcha } from 'react-simple-captcha';
 import { authContext } from '../../Provider/AuthProvider';
 import Swal from 'sweetalert2';
+import SocialLogin from '../../components/SocialLogin/SocialLogin';
 
 
 const Login = () => {
@@ -25,7 +26,7 @@ const Login = () => {
         else {
             // setError('wrong captcha');
         }
-    } 
+    }
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -45,7 +46,7 @@ const Login = () => {
                 navigate(from, { replace: true });
             })
     }
-   
+
     return (
         <div className="hero min-h-screen bg-base-200">
             <Helmet><title>BISTRO BOSS | Login</title></Helmet>
@@ -86,6 +87,10 @@ const Login = () => {
                         </div>
                     </form>
                     <p className=" text-center my-5"><small>New here? <Link to="/signUp" className=" text-blue-600">Create an account.</Link></small></p>
+                    <div className='divider'></div>
+                    <div className="mx-auto p-5">
+                        <SocialLogin></SocialLogin>
+                    </div>
                 </div>
             </div>
         </div>
